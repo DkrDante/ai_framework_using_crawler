@@ -2,6 +2,10 @@
 
 An end-to-end automated visual testing and analysis pipeline that bridges the gap between requirements and visual verification. The pipeline leverages local Large Language Models (LLMs) via Ollama to generate exhaustive QA test suites directly from specifications, extracts path/click constraints, and guides a visual web crawler to build page-state relationship graphs focusing solely on test case flows.
 
+---
+
+## High-Level Architecture
+
 ```mermaid
 graph TD
     %% Define Nodes
@@ -45,6 +49,94 @@ graph TD
 
 ---
 
+## Workflow 1: AI Test Case Generation
+
+The **Test Case Generator** module is responsible for parsing raw Business Requirement Documents (BRDs) and automatically deriving comprehensive QA test suites.
+
+### Flow Diagram
+
+```mermaid
+sequenceDiagram
+    participant User
+    participant Main as main.py (CLI)
+    participant Gen as generator.py
+    participant LLM as Local LLM (Ollama)
+    participant Parsers as JSON/Excel Exporters
+    
+    User->>Main: Execute Pipeline (run_pipeline.sh)
+    Main->>Main: Read 'brd_prompt.txt'
+    Main->>Gen: Process BRD text chunk by chunk
+    
+    loop For each chunk
+        Gen->>LLM: Send structured prompt & chunk
+        LLM-->>Gen: Return raw JSON test case string
+        Gen->>Gen: Clean and validate JSON format
+    end
+    
+    Gen-->>Main: Aggregated Test Cases List
+    Main->>Parsers: Export to JSON and Excel
+    Parsers-->>User: output/test_cases.json & .xlsx
+```
+
+### Explanation
+1. **Input**: Reads the raw text specification from `brd_prompt.txt` or `test_promt.txt`.
+2. **Chunking**: For large documents, the text is split into manageable chunks so the LLM doesn't exceed its context window.
+3. **LLM Generation**: Each chunk is sent to the local Ollama LLM with a strict system prompt (`prompts.py`) that forces it to output test scenarios (happy path, edge cases, negative tests) in valid JSON format.
+4. **Validation & Aggregation**: The `generator.py` script intercepts the LLM output, sanitizes markdown artifacts, validates the JSON schema, and merges the results into a single list.
+5. **Exporting**: Outputs a machine-readable `test_cases.json` and a human-readable, dynamically formatted `test_cases.xlsx`.
+6. **Code Generation**: A sub-process dynamically reads the generated JSON and outputs Playwright/Pytest automated code implementations directly into the test suite.
+
+---
+
+## Workflow 2: Guided Visual Crawler
+
+The **Crawler** module consumes the generated test cases and uses them to intelligently explore the target web application, rather than aimlessly clicking everything.
+
+### Flow Diagram
+
+```mermaid
+flowchart TD
+    Start[Start Crawler] --> ReadJSON[Read test_cases.json]
+    ReadJSON --> Extract[Constraint Extractor]
+    Extract -->|Extract Target URLs & Button Labels| Config[Crawler Constraints]
+    
+    Config --> Auth{Valid state.json?}
+    Auth -- No --> Login[Headless Playwright Login Flow]
+    Login --> FetchOTP[IMAP Fetch OTP]
+    FetchOTP --> SubmitOTP[Submit OTP & Save state.json]
+    SubmitOTP --> RunWorkers
+    Auth -- Yes --> RunWorkers[Spawn Async BFS Workers]
+    
+    RunWorkers --> VisitPage[Visit Target Page URL]
+    VisitPage --> Eval[Evaluate DOM & Take Screenshots]
+    
+    Eval --> DrawOverlay[Draw Bounding Boxes & IDs on UI]
+    Eval --> ScrapeElements[Extract Actionable Elements<br/>buttons, inputs, links]
+    
+    ScrapeElements --> Filter{Matches Constraints?}
+    Filter -- Yes --> QueueClick[Queue Element Click Transition]
+    Filter -- No --> Skip[Ignore Element]
+    
+    QueueClick --> StateCheck{Is State New?}
+    StateCheck -- Yes --> VisitPage
+    StateCheck -- No --> MapGraph[Map Edge in Graph & Discard duplicate state]
+    
+    MapGraph --> End[End & Output site_graph.json]
+```
+
+### Explanation
+1. **Constraint Extraction**: The `constraint_extractor.py` parses `test_cases.json`. It maps test case steps to regex expressions using `\b` word boundaries (e.g., matching a button label `View` won't match `Preview`), pruning links and clicks that are unrelated to the current test suite.
+2. **Authentication**: Uses a lock-based Unified Login Protocol. If a session isn't present (`.auth/state.json`) or is expired, a browser is spun up to log in. It inputs credentials, polls a specified IMAP email for an OTP, enters it, and saves the cookies/localStorage. All subsequent workers use this state.
+3. **Guided BFS Navigation**: The crawler navigates to the initial URLs. At each state, it injects custom JavaScript to map the DOM, locating interactive elements (buttons, inputs, links).
+4. **Visual & Data Extraction**: 
+   - Takes a clean `screenshot.png`.
+   - Draws labeled red bounding boxes over elements in `screenshot_labeled.png`.
+   - Saves all element locators to `elements.json`.
+5. **State Deduplication**: The crawler hashes page signatures (based on DOM structure and active elements) to avoid infinite loops and duplicate states. 
+6. **Graph Building**: Records the transition path from state to state, generating `site_graph.json` showing how different UI states connect based solely on test-case paths.
+
+---
+
 ## Directory Structure
 
 ```text
@@ -74,6 +166,12 @@ graph TD
 │   ├── brd_prompt.txt      # Default business specification document
 │   ├── test_promt.txt      # Expanded business specification document with Settings
 │   └── README.md           # Test Case Generator sub-module documentation
+├── automation-framework/   # Generated AI Tests & Automation Framework
+│   ├── tests/
+│   │   ├── ai_generated/   # Directory where AI code generator drops .py test suites
+│   │   └── ui/             # Baseline UI automation tests
+│   ├── fixtures/           # Pytest fixtures and authentication sharing
+│   └── pytest.ini          # Pytest configurations (parallel workers, retries)
 ├── shared_utils/           # Shared utility modules
 │   ├── __init__.py
 │   └── logger.py           # Unified Daily rolling logger configuring Stream + File handlers
@@ -195,4 +293,3 @@ All outputs are saved to the `./output/` directory:
 - **Signatures and Deduplication**: The crawler avoids infinite loops and identical pages (e.g. dynamic settings modals showing visual elements but keeping the base URL) by hashing page signatures (using tags, locators, and text). If a page has a match, its screenshots are deleted, and its transition path is redirected to the existing page object.
 - **Unified Login Protocol**: If [state.json] is missing, the script initiates a headed browser script. It automatically inputs the user credentials, queries the Google Gmail inbox via IMAP to capture the latest "TRY Login Code" OTP, submits it, saves browser cookies, and closes. Subsequent workers load this state.json in headless mode.
 - **Word-Boundary Constraint Matches**: The constraints extractor maps test case steps to regex expressions using `\b` word boundaries (e.g., matching a button label `View` won't match `Preview` by accident), pruning links and clicks that are unrelated to the current test suite.
-# ai_framework_using_crawler
