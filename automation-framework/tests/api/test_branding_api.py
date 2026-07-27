@@ -6,6 +6,7 @@ Combined test cases to reduce overall test count while maintaining extensive cov
 """
 
 import pytest
+import allure
 from services import BrandingAPIService
 
 
@@ -29,10 +30,14 @@ def settings_response(branding_api):
 # Branding API Tests
 # ---------------------------------------------------------------------------
 
+@allure.epic("SatoriXR Dashboard")
+@allure.feature("API Tests")
+@allure.story("Branding & Feature Flags")
 @pytest.mark.api
 class TestBrandingAPI:
     """Validates the tenant branding and platform configuration response schema."""
 
+    @allure.severity(allure.severity_level.CRITICAL)
     @pytest.mark.smoke
     def test_settings_response_success_and_metadata(self, settings_response):
         """Verify the API responds successfully and contains core metadata."""
@@ -40,6 +45,7 @@ class TestBrandingAPI:
         assert isinstance(settings_response["tenant"], str)
         assert isinstance(settings_response["settings"], dict)
 
+    @allure.severity(allure.severity_level.NORMAL)
     @pytest.mark.regression
     def test_settings_branding_fields(self, settings_response):
         """Verify the primary branding configuration and metadata fields are valid."""
@@ -64,6 +70,7 @@ class TestBrandingAPI:
         if "updatedAt" in settings:
             assert isinstance(settings["updatedAt"], str)
 
+    @allure.severity(allure.severity_level.NORMAL)
     @pytest.mark.regression
     def test_settings_feature_flags(self, settings_response):
         """Verify the features object structure and all key feature flag types."""

@@ -37,7 +37,7 @@ class DashboardPage(BasePage):
         """
         return self.page.locator("main").locator(
             "div"
-        ).filter(has_text=re.compile(rf"^{re.escape(title)}", re.IGNORECASE))
+        ).filter(has_text=re.compile(rf"{re.escape(title)}", re.IGNORECASE)).first
 
     # ------------------------------------------------------------------
     # Metric card data extraction

@@ -24,6 +24,7 @@ from test_data.dashboard_data import (
 )
 
 
+
 # ---------------------------------------------------------------------------
 # Fixtures — setup via page objects, not raw locators
 # ---------------------------------------------------------------------------
@@ -65,10 +66,14 @@ def dashboard_api(api_context):
 # Page basics — one assertion per test
 # ---------------------------------------------------------------------------
 
+@allure.epic("SatoriXR Dashboard")
+@allure.feature("UI Tests")
+@allure.story("Page Basics")
 @pytest.mark.ui
 class TestDashboardPageBasics:
     """Basic page-level sanity checks."""
 
+    @allure.severity(allure.severity_level.CRITICAL)
     @pytest.mark.smoke
     def test_page_title_contains_product_name(self, dashboard):
         """The browser tab title should contain 'SatoriXR'."""
@@ -77,6 +82,7 @@ class TestDashboardPageBasics:
             f"Expected 'SatoriXR' in page title, got: '{title}'"
         )
 
+    @allure.severity(allure.severity_level.CRITICAL)
     @pytest.mark.smoke
     def test_url_resolves_to_home_route(self, dashboard):
         """After login the URL should match the /home pattern."""
@@ -85,6 +91,7 @@ class TestDashboardPageBasics:
             f"Expected URL to match '{DASHBOARD_URL_PATTERN.pattern}', got: '{url}'"
         )
 
+    @allure.severity(allure.severity_level.NORMAL)
     @pytest.mark.regression
     def test_no_error_banners_on_load(self, dashboard):
         """No generic error banners should be visible on the dashboard."""
@@ -100,16 +107,21 @@ class TestDashboardPageBasics:
 # Overview section — one assertion per test
 # ---------------------------------------------------------------------------
 
+@allure.epic("SatoriXR Dashboard")
+@allure.feature("UI Tests")
+@allure.story("Overview Section")
 @pytest.mark.ui
 class TestOverviewSection:
     """Validates the Overview heading."""
 
+    @allure.severity(allure.severity_level.CRITICAL)
     @pytest.mark.smoke
     def test_overview_heading_is_visible(self, dashboard):
         """The 'Overview' heading must be visible."""
         heading = dashboard.get_heading(OVERVIEW_HEADING)
         expect(heading).to_be_visible(timeout=10000)
 
+    @allure.severity(allure.severity_level.NORMAL)
     @pytest.mark.regression
     def test_overview_heading_text_is_exact(self, dashboard):
         """The heading should read exactly 'Overview'."""
@@ -125,10 +137,14 @@ class TestOverviewSection:
 # Summary cards — parametrized = one test run per card
 # ---------------------------------------------------------------------------
 
+@allure.epic("SatoriXR Dashboard")
+@allure.feature("UI Tests")
+@allure.story("Metric Cards")
 @pytest.mark.ui
 class TestSummaryCards:
     """Validates metric cards. Each parametrized run = one card = one assertion."""
 
+    @allure.severity(allure.severity_level.CRITICAL)
     @pytest.mark.smoke
     @pytest.mark.parametrize("card_title", EXPECTED_CARDS)
     def test_card_is_visible(self, dashboard, card_title):
@@ -136,6 +152,7 @@ class TestSummaryCards:
         card = dashboard.get_metric_card(card_title)
         expect(card).to_be_visible()
 
+    @allure.severity(allure.severity_level.NORMAL)
     @pytest.mark.regression
     @pytest.mark.parametrize("card_title", EXPECTED_CARDS)
     def test_card_displays_a_number(self, dashboard, card_title):
@@ -148,19 +165,42 @@ class TestSummaryCards:
 # API-vs-UI consistency — single comparison assertion
 # ---------------------------------------------------------------------------
 
+@allure.epic("SatoriXR Dashboard")
+@allure.feature("UI Tests")
+@allure.story("API vs UI Data Integrity")
 @pytest.mark.ui
 @pytest.mark.api
 class TestApiUiConsistency:
     """Cross-layer validation between API data and UI display."""
 
+    @allure.severity(allure.severity_level.BLOCKER)
+    @allure.title("🐛 BUG CHECK: Dashboard Products card must match API count")
     @pytest.mark.regression
-    def test_products_card_matches_api_count(self, dashboard, dashboard_api):
+    def test_products_card_matches_api_count(self, dashboard, module_page, dashboard_api):
         """The 'Total Products' card value should equal the API active count."""
         with allure.step("Fetch active products count from API"):
             api_count = dashboard_api.get_active_products_count()
+            allure.attach(
+                str(api_count),
+                name="API Active Products Count",
+                attachment_type=allure.attachment_type.TEXT,
+            )
 
         with allure.step("Extract numeric value from 'Total Products' card"):
             ui_count = dashboard.get_metric_card_value("Total Products")
+            allure.attach(
+                str(ui_count),
+                name="UI Displayed Products Count",
+                attachment_type=allure.attachment_type.TEXT,
+            )
+
+        with allure.step("Capture screenshot of dashboard at time of check"):
+            screenshot = module_page.screenshot()
+            allure.attach(
+                screenshot,
+                name="Dashboard at Assertion Time",
+                attachment_type=allure.attachment_type.PNG,
+            )
 
         assert ui_count is not None, (
             "Could not extract a numeric value from the 'Total Products' card."
@@ -174,10 +214,14 @@ class TestApiUiConsistency:
 # Sidebar navigation — parametrized = one test run per nav item
 # ---------------------------------------------------------------------------
 
+@allure.epic("SatoriXR Dashboard")
+@allure.feature("UI Tests")
+@allure.story("Sidebar Navigation")
 @pytest.mark.ui
 class TestSidebarNavigation:
     """Validates sidebar nav items. Each parametrized run = one item."""
 
+    @allure.severity(allure.severity_level.CRITICAL)
     @pytest.mark.smoke
     @pytest.mark.parametrize("nav_label", EXPECTED_NAV_ITEMS)
     def test_nav_item_is_visible(self, dashboard, nav_label):
@@ -185,6 +229,7 @@ class TestSidebarNavigation:
         nav = dashboard.get_nav(nav_label)
         expect(nav.first).to_be_visible()
 
+    @allure.severity(allure.severity_level.NORMAL)
     @pytest.mark.regression
     @pytest.mark.parametrize("sub_nav_label", EXPECTED_SUB_NAV_ITEMS)
     def test_settings_sub_nav_item_is_visible(self, dashboard, sub_nav_label):
@@ -199,12 +244,17 @@ class TestSidebarNavigation:
 # Products section
 # ---------------------------------------------------------------------------
 
+@allure.epic("SatoriXR Dashboard")
+@allure.feature("UI Tests")
+@allure.story("Products Section — Data Integrity")
 @pytest.mark.ui
 class TestProductDisplay:
     """
     This class contains tests for the Products section of the dashboard.
     """
 
+    @allure.severity(allure.severity_level.BLOCKER)
+    @allure.title("🐛 BUG CHECK: Products section shows the correct latest 4 products")
     @pytest.mark.regression
     def test_products_section_displays_latest_four_products(self, dashboard, dashboard_api):
         """The Products section should display exactly the latest four products from the API sorted by date."""
@@ -242,12 +292,17 @@ class TestProductDisplay:
 # Experience section
 # ---------------------------------------------------------------------------
 
+@allure.epic("SatoriXR Dashboard")
+@allure.feature("UI Tests")
+@allure.story("Experiences Section — Data Integrity")
 @pytest.mark.ui
 class TestExperiencesSection:
     """
     This class contains tests for the Experiences section of the dashboard.
     """
 
+    @allure.severity(allure.severity_level.BLOCKER)
+    @allure.title("🐛 BUG CHECK: Experiences section shows the correct latest 4 experiences")
     @pytest.mark.regression
     def test_experiences_section_displays_latest_four_experiences(self, dashboard, dashboard_api):
         """The Experiences section should display exactly the latest four experiences from the API sorted by date."""

@@ -43,10 +43,11 @@ STRICT RULES — follow every one without exception:
     d. page.locator("h2").filter(has_text=re.compile(r"...", re.I)) — for section headings
     e. page.locator("section, div").filter(has=...) — to scope to a section
     f. CSS selectors ONLY if the exact class appears verbatim in the elements context
-18. When the page has MULTIPLE elements with the same text (e.g. two "View All" links):
-    - Use .first for the first occurrence
-    - Use .nth(1) for the second occurrence
-    - DO NOT blindly click a link without scoping it to the right section
+18. AVOID PLAYWRIGHT STRICT MODE ERRORS: Playwright crashes if a locator matches multiple elements.
+    - ALWAYS append `.first` to your locators unless you are 100% certain it's unique.
+    - e.g., use `page.get_by_role("button", name="View").first`
+    - If you explicitly need the second, use `.nth(1)`.
+    - NEVER blindly click a link without `.first` or scoping it to a section.
 19. For URL assertions after navigation use: expect(page).to_have_url(re.compile(r".*/path.*"))
 20. For class assertions: expect(locator).to_have_class(re.compile(r"active|selected|router-link-active"))
 
@@ -72,7 +73,7 @@ Generate a complete Python pytest file for the following test cases.
 
 IMPORTANT REMINDERS before you write code:
 - Check the elements context above for real text, roles, and classes.
-- When you see multiple links/buttons with the same text, use .first or .nth(N).
+- STRICT MODE FIX: You MUST append `.first` (e.g. `.first.click()`) to ALL ambiguous locators (links, buttons, headings) so Playwright doesn't crash.
 - Never use CSS class names that don't appear in the elements context.
 - Always add `import re` at the top.
 
