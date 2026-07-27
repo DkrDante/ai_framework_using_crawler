@@ -1,0 +1,24 @@
+{
+  "dashboard_url_pattern": ".*/home.*",
+  "overview_heading": "Overview",
+  "expected_cards": [
+    "Total Products",
+    "Experiences",
+    "Sessions",
+    "Users"
+  ],
+  "expected_nav_items": [
+    "Home",
+    "Products",
+    "Experiences",
+    "Analytics",
+    "Settings"
+  ],
+  "expected_sub_nav_items": [
+    "User Management",
+    "Branding",
+    "Category Management",
+    "Background Management",
+    "Material Management"
+  ]
+}

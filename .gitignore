@@ -1,0 +1,45 @@
+# Virtual environment
+venv/
+.venv/
+
+# Environment variables
+.env
+
+# Playwright/Crawl4AI session and local state files
+**/state.json
+**/state*.json
+
+# Output directories
+output/
+**/output/
+.auth/
+captures/
+
+# Python cache / compiled files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# IDE and system files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+#logs
+logs/
+
+# Pytest & Allure
+.pytest_cache/
+**/test-results/
+**/allure-results/
+**/allure-report/
+**/reports/
+
+
+# Additional environment and editor patterns
+env/
+*.bak/
+*.log
+*.swp
+*.swo

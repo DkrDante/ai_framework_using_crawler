@@ -1,0 +1,87 @@
+
+## Application Overview
+
+This application is an administrative portal called **SatoriXR**.
+
+It allows organizations to manage their XR products, experiences, analytics, users, and application settings.
+
+The application consists of the following major pages.
+
+---
+
+## 2. Dashboard (Home) url: https://try.satorixr.com/home
+
+After login, users are taken to the Dashboard.
+
+The Dashboard provides a quick overview of business information.
+
+The page contains:
+
+### Overview Section
+
+Displays summary information such as
+
+* Total Products
+* Total Experiences
+* Total Users
+* Total Sessions
+
+These values provide a quick business overview.
+
+---
+
+### Products Section
+
+Displays the latest products available in the system.
+
+Each product card contains
+
+* Product image
+* Product name
+* Experience count
+* Creation/updated date
+* View button
+* Edit button
+
+A **View All** option allows users to navigate to the complete Products page url: https://try.satorixr.com/products.
+
+---
+
+### Experiences Section
+
+Displays the latest experiences created in the system.
+
+Each experience card contains
+
+* Experience image
+* Experience name
+* Related information
+* View button
+* Edit button
+
+A **View All** option allows navigation to the complete Experiences page url: https://try.satorixr.com/experiences.
+
+---
+
+### Navigation Menu
+
+The left navigation menu provides access to
+
+* Home
+* Products
+* Experiences
+* Analytics
+* Settings
+
+The currently selected page should be clearly highlighted.
+
+---
+
+### Header
+
+The header contains
+
+* Language selector
+* User profile
+* Account menu
+

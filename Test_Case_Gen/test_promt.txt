@@ -1,0 +1,176 @@
+
+## Application Overview
+
+This application is an administrative portal called **SatoriXR**.
+
+It allows organizations to manage their XR products, experiences, analytics, users, and application settings.
+
+The application consists of the following major pages.
+
+---
+
+## 2. Dashboard (Home) url = https://try.satorixr.com/home
+
+After successful login, users are taken to the Dashboard.
+
+The Dashboard provides a quick overview of business information.
+
+The page contains:
+
+### Overview Section
+
+Displays summary information such as
+
+* Total Products
+* Total Experiences
+* Total Users
+* Total Sessions
+
+These values provide a quick business overview.
+
+---
+
+### Products Section
+
+Displays the latest products available in the system.
+
+Each product card contains
+
+* Product image
+* Product name
+* Experience count
+* Creation/updated date
+* View button
+* Edit button
+
+A **View All** option allows users to navigate to the complete Products page url = https://try.satorixr.com/products
+
+---
+
+### Experiences Section
+
+Displays the latest experiences created in the system.
+
+Each experience card contains
+
+* Experience image
+* Experience name
+* Related information
+* View button
+* Edit button
+
+A **View All** option allows navigation to the complete Experiences page url = https://try.satorixr.com/experiences
+
+---
+
+### Navigation Menu
+
+The left navigation menu provides access to
+
+* Home
+* Products
+* Experiences
+* Analytics
+* Settings
+
+The currently selected page should be clearly highlighted.
+
+---
+
+### Header
+
+The header contains
+
+* Language selector
+* User profile
+* Account menu
+
+
+
+---
+
+## 6. Settings
+
+The **Settings** section allows administrators to configure organization-wide settings and manage platform resources.
+
+Available settings modules include:
+
+- User Management
+- Branding
+- Category Management
+- Background Management
+- Material Management
+- Usage
+
+---
+
+## 6.1 Branding url = https://try.satorixr.com/settings
+
+The Branding page allows organizations to customize how their company is represented throughout the platform.
+
+---
+
+### Company Logo
+
+Administrators can manage the company logo by:
+
+- Uploading a logo
+- Replacing the existing logo
+- Removing the current logo
+
+Supported formats:
+
+- PNG
+- JPG
+
+Recommended image size:
+
+- 200 × 200 pixels
+
+---
+
+### Company Name
+
+Allows administrators to specify the organization name displayed throughout shared experiences.
+
+The field includes character limit validation.
+
+---
+
+### Company Color
+
+Allows administrators to configure the organization's primary brand color.
+
+This color is applied across shared XR experiences for consistent branding.
+
+---
+
+### Available Actions
+
+The Branding page provides the following actions:
+
+- Save Settings
+- Reset to Defaults
+
+---
+
+### Navigation Menu
+
+The left navigation menu provides access to:
+
+- Home
+- Products
+- Experiences
+- Analytics
+- Settings
+
+Within **Settings**, users can navigate to:
+
+- User Management
+- Branding
+- Category Management
+- Background Management
+- Material Management
+- Usage
+
+The currently selected page and submenu are clearly highlighted.

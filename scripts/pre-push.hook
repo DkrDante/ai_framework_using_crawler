@@ -1,0 +1,51 @@
+#!/bin/bash
+# =============================================================================
+# pre-push git hook — fires on every `git push`
+#
+# This hook calls scripts/gen_on_push.py which:
+#   1. Detects which Python files changed in the push
+#   2. Extracts features (classes, functions, docstrings) from those files
+#   3. Builds a dynamic LLM prompt
+#   4. Runs Test_Case_Gen/main.py → saves test cases to output/push_<ts>/
+#
+# To bypass: git push --no-verify
+# To install this hook: ./scripts/install_hooks.sh
+# =============================================================================
+
+set -euo pipefail
+
+# ── Locate the project root (two levels up from .git/hooks/)
+HOOK_DIR="$(cd "$(dirname "$0")" && pwd)"
+GIT_DIR="$(cd "$HOOK_DIR/.." && pwd)"
+REPO_ROOT="$(cd "$GIT_DIR/.." && pwd)"
+
+SCRIPT="$REPO_ROOT/scripts/gen_on_push.py"
+
+# ── Check the script exists
+if [ ! -f "$SCRIPT" ]; then
+    echo ""
+    echo "  [⚠️ ] gen_on_push.py not found at $SCRIPT"
+    echo "        Skipping AI test case generation."
+    echo ""
+    exit 0
+fi
+
+# ── Resolve Python executable: prefer venv, fall back to system
+if [ -f "$REPO_ROOT/venv/bin/python" ]; then
+    PYTHON="$REPO_ROOT/venv/bin/python"
+elif command -v python3 &>/dev/null; then
+    PYTHON="python3"
+elif command -v python &>/dev/null; then
+    PYTHON="python"
+else
+    echo ""
+    echo "  [❌] Python not found. Skipping AI test case generation."
+    echo ""
+    exit 0
+fi
+
+# ── Run the generator; pass REPO_ROOT so it knows where to diff
+"$PYTHON" "$SCRIPT" "$REPO_ROOT"
+EXIT_CODE=$?
+
+exit $EXIT_CODE

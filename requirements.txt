@@ -1,0 +1,38 @@
+# Crawler dependencies
+crawl4ai>=0.4.0
+playwright>=1.49.0
+beautifulsoup4>=4.12.0
+Pillow>=10.0.0
+
+# Test Case Generator dependencies
+pandas>=2.0.0
+openpyxl>=3.1.0
+requests>=2.31.0
+rich>=13.0.0
+
+# Shared dependencies
+python-dotenv>=1.0.1
+
+# Automation Framework dependencies
+allure-pytest==2.15.3
+allure-python-commons==2.15.3
+attrs==26.1.0
+certifi==2026.2.25
+charset-normalizer==3.4.7
+colorama==0.4.6
+greenlet==3.4.0
+idna==3.11
+iniconfig==2.3.0
+packaging==26.0
+pluggy==1.6.0
+pyee==13.0.1
+Pygments==2.20.0
+pytest==9.0.3
+PyYAML==6.0.3
+typing_extensions==4.15.0
+urllib3==2.6.3
+pytest-order
+pytest-playwright
+pytest-xdist
+pytest-rerunfailures
+
